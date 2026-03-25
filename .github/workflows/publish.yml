@@ -16,8 +16,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # bash: required on windows-latest; [[:space:]]: portable (macOS BSD grep has no \s in -E)
       - name: Package version from Cargo.toml
-        run: grep -E '^version\s*=' Cargo.toml
+        shell: bash
+        run: grep -E '^version[[:space:]]*=' Cargo.toml
 
       - uses: PyO3/maturin-action@v1
         with:
