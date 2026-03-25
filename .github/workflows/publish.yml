@@ -16,10 +16,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # bash: required on windows-latest; [[:space:]]: portable (macOS BSD grep has no \s in -E)
+      # shell: python works on linux/mac/windows (no grep / PowerShell quoting issues).
       - name: Package version from Cargo.toml
-        shell: bash
-        run: grep -E '^version[[:space:]]*=' Cargo.toml
+        shell: python
+        run: |
+          import pathlib
+          import re
+
+          text = pathlib.Path("Cargo.toml").read_text(encoding="utf-8")
+          m = re.search(r'^version\s*=\s*"([^"]+)"', text, re.MULTILINE)
+          if not m:
+              raise SystemExit("no version in Cargo.toml")
+          print(m.group(0))
 
       - uses: PyO3/maturin-action@v1
         with:
