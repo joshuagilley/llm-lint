@@ -1,6 +1,6 @@
 [package]
 name = "llm-lint"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "LLM-oriented linter — catch quality drift before it hardens"
 license = "MIT"
