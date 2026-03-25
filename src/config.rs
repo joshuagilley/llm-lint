@@ -41,12 +41,10 @@ impl Default for Config {
                 ".vue".into(),
                 ".html".into(),
             ],
-            large_file_extensions: [
-                ".py", ".js", ".ts", ".tsx", ".jsx", ".vue",
-            ]
-            .into_iter()
-            .map(String::from)
-            .collect(),
+            large_file_extensions: [".py", ".js", ".ts", ".tsx", ".jsx", ".vue"]
+                .into_iter()
+                .map(String::from)
+                .collect(),
             exclude_dirs: vec![
                 ".git".into(),
                 "node_modules".into(),
@@ -87,11 +85,7 @@ pub enum ConfigError {
 pub(crate) struct ConfigFile {
     #[serde(default, rename = "include")]
     include: Option<Vec<String>>,
-    #[serde(
-        default,
-        rename = "fail-threshold",
-        alias = "fail_threshold"
-    )]
+    #[serde(default, rename = "fail-threshold", alias = "fail_threshold")]
     fail_threshold: Option<i32>,
     #[serde(
         default,
@@ -99,11 +93,7 @@ pub(crate) struct ConfigFile {
         alias = "max_file_lines_warning"
     )]
     max_file_lines_warning: Option<i32>,
-    #[serde(
-        default,
-        rename = "max-file-lines-high",
-        alias = "max_file_lines_high"
-    )]
+    #[serde(default, rename = "max-file-lines-high", alias = "max_file_lines_high")]
     max_file_lines_high: Option<i32>,
     #[serde(
         default,
@@ -117,11 +107,7 @@ pub(crate) struct ConfigFile {
         alias = "max_function_lines_high"
     )]
     max_function_lines_high: Option<i32>,
-    #[serde(
-        default,
-        rename = "include-extensions",
-        alias = "include_extensions"
-    )]
+    #[serde(default, rename = "include-extensions", alias = "include_extensions")]
     include_extensions: Option<Vec<String>>,
     #[serde(
         default,
@@ -133,11 +119,7 @@ pub(crate) struct ConfigFile {
     exclude_dirs: Option<Vec<String>>,
     #[serde(default, rename = "exclude-files", alias = "exclude_files")]
     exclude_files: Option<Vec<String>>,
-    #[serde(
-        default,
-        rename = "exclude-severities",
-        alias = "exclude_severities"
-    )]
+    #[serde(default, rename = "exclude-severities", alias = "exclude_severities")]
     exclude_severities: Option<Vec<String>>,
     #[serde(default)]
     verbose: Option<bool>,
@@ -161,9 +143,8 @@ pub(crate) fn load_config_file(scan_root: &Path) -> Result<Option<ConfigFile>, C
             .map_err(|e| ConfigError::Io(toml_path.display().to_string(), e))?;
         let trimmed = text.trim();
         if !trimmed.is_empty() {
-            let data: ConfigFile = toml::from_str(trimmed).map_err(|e| {
-                ConfigError::Toml(toml_path.display().to_string(), e)
-            })?;
+            let data: ConfigFile = toml::from_str(trimmed)
+                .map_err(|e| ConfigError::Toml(toml_path.display().to_string(), e))?;
             return Ok(Some(data));
         }
     }

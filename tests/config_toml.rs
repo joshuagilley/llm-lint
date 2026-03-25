@@ -42,11 +42,7 @@ fn empty_toml_file_falls_back_to_json() {
     let dir = tempfile::tempdir().expect("tempdir");
     let root = dir.path();
     fs::write(root.join("llm-lint.toml"), "   \n  \n").expect("empty toml");
-    fs::write(
-        root.join("llm-lint.json"),
-        r#"{"fail-threshold": 42}"#,
-    )
-    .expect("write json");
+    fs::write(root.join("llm-lint.json"), r#"{"fail-threshold": 42}"#).expect("write json");
 
     let cfg = merge_config_simple(root, None, false, None, None).expect("merge");
     assert_eq!(cfg.fail_threshold, 42);
@@ -57,11 +53,7 @@ fn toml_takes_precedence_over_json_when_nonempty() {
     let dir = tempfile::tempdir().expect("tempdir");
     let root = dir.path();
     fs::write(root.join("llm-lint.toml"), "fail_threshold = 1\n").expect("toml");
-    fs::write(
-        root.join("llm-lint.json"),
-        r#"{"fail-threshold": 99}"#,
-    )
-    .expect("json");
+    fs::write(root.join("llm-lint.json"), r#"{"fail-threshold": 99}"#).expect("json");
 
     let cfg = merge_config_simple(root, None, false, None, None).expect("merge");
     assert_eq!(cfg.fail_threshold, 1);

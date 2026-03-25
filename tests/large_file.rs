@@ -16,11 +16,7 @@ fn big_py_lines(n: usize) -> String {
 fn large_file_rule_warns_over_threshold() {
     let dir = tempfile::tempdir().expect("tempdir");
     let root = dir.path();
-    fs::write(
-        root.join("big.py"),
-        big_py_lines(450),
-    )
-    .expect("write");
+    fs::write(root.join("big.py"), big_py_lines(450)).expect("write");
 
     let mut config = Config::default();
     config.exclude_dirs = vec![]; // allow scanning everything under temp dir
@@ -48,11 +44,7 @@ fn unknown_include_rule_errors() {
     config.include_rules = Some(vec!["large-file".into(), "not-a-rule".into()]);
 
     let err = scan(root, &config).expect_err("expected unknown rule");
-    assert!(
-        err.to_string().contains("not-a-rule"),
-        "got {}",
-        err
-    );
+    assert!(err.to_string().contains("not-a-rule"), "got {}", err);
 }
 
 #[test]

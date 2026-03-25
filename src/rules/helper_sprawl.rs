@@ -56,14 +56,11 @@ impl HelperSprawlRule {
         for ctx in contexts {
             for fn_info in &ctx.functions {
                 let b = base_name(&fn_info.name);
-                base_map
-                    .entry(b)
-                    .or_default()
-                    .push((
-                        fn_info.name.clone(),
-                        fn_info.file_path.clone(),
-                        fn_info.line_start,
-                    ));
+                base_map.entry(b).or_default().push((
+                    fn_info.name.clone(),
+                    fn_info.file_path.clone(),
+                    fn_info.line_start,
+                ));
             }
         }
 

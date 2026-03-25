@@ -2,8 +2,8 @@
 
 pub mod config;
 pub mod models;
-mod pragma;
 pub mod parsers;
+mod pragma;
 pub mod rules;
 pub mod scanner;
 pub mod scoring;

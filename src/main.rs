@@ -7,7 +7,11 @@ use llm_lint::scoring::grade;
 use serde::Serialize;
 
 #[derive(Parser)]
-#[command(name = "llm-lint", version, about = "Catch AI slop and code quality drift before it hardens.")]
+#[command(
+    name = "llm-lint",
+    version,
+    about = "Catch AI slop and code quality drift before it hardens."
+)]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
@@ -19,7 +23,11 @@ enum Commands {
     Scan {
         #[arg(default_value = ".")]
         path: String,
-        #[arg(long = "fail-threshold", short = 't', help = "Score at which the command exits with failure")]
+        #[arg(
+            long = "fail-threshold",
+            short = 't',
+            help = "Score at which the command exits with failure"
+        )]
         fail_threshold: Option<i32>,
         #[arg(long = "format", short = 'f', default_value = "terminal", value_parser = ["terminal", "json"])]
         format: String,
@@ -27,7 +35,10 @@ enum Commands {
         verbose: bool,
         #[arg(long = "max-file-lines", help = "Override file line warning threshold")]
         max_file_lines: Option<i32>,
-        #[arg(long = "max-function-lines", help = "Override function line warning threshold")]
+        #[arg(
+            long = "max-function-lines",
+            help = "Override function line warning threshold"
+        )]
         max_function_lines: Option<i32>,
     },
 }

@@ -54,11 +54,7 @@ fn exposed_secrets_detects_sk_proj_style_key() {
 fn fallback_defaults_detects_os_getenv_sentinel() {
     let dir = tempfile::tempdir().expect("tempdir");
     let root = dir.path();
-    fs::write(
-        root.join("cfg.py"),
-        "timeout = os.getenv(\"TIMEOUT\", 0)\n",
-    )
-    .expect("write");
+    fs::write(root.join("cfg.py"), "timeout = os.getenv(\"TIMEOUT\", 0)\n").expect("write");
 
     let mut config = py_only_scan_config();
     config.include_rules = Some(vec!["fallback-defaults".into()]);
@@ -93,16 +89,8 @@ fn helper_sprawl_flags_generic_utils_filename() {
 fn helper_sprawl_cross_file_versioned_function_names() {
     let dir = tempfile::tempdir().expect("tempdir");
     let root = dir.path();
-    fs::write(
-        root.join("a.py"),
-        "def foo_v1():\n    return 1\n",
-    )
-    .expect("write");
-    fs::write(
-        root.join("b.py"),
-        "def foo_v2():\n    return 2\n",
-    )
-    .expect("write");
+    fs::write(root.join("a.py"), "def foo_v1():\n    return 1\n").expect("write");
+    fs::write(root.join("b.py"), "def foo_v2():\n    return 2\n").expect("write");
 
     let mut config = py_only_scan_config();
     config.include_rules = Some(vec!["helper-sprawl".into()]);
