@@ -32,19 +32,29 @@ impl Default for Config {
             max_function_lines_warning: 50,
             max_function_lines_high: 100,
             fail_threshold: 20,
+            // Rust, Python, JS/TS, Vue, HTML (non-Python files use text/JS-oriented heuristics).
             include_extensions: vec![
-                ".py".into(),
+                ".cjs".into(),
+                ".cts".into(),
+                ".htm".into(),
+                ".html".into(),
                 ".js".into(),
+                ".jsx".into(),
+                ".mjs".into(),
+                ".mts".into(),
+                ".py".into(),
+                ".rs".into(),
                 ".ts".into(),
                 ".tsx".into(),
-                ".jsx".into(),
                 ".vue".into(),
-                ".html".into(),
             ],
-            large_file_extensions: [".py", ".js", ".ts", ".tsx", ".jsx", ".vue"]
-                .into_iter()
-                .map(String::from)
-                .collect(),
+            // Line-count warnings for source files; HTML not included (avoids huge static assets).
+            large_file_extensions: [
+                ".cjs", ".cts", ".js", ".jsx", ".mjs", ".mts", ".py", ".rs", ".ts", ".tsx", ".vue",
+            ]
+            .into_iter()
+            .map(String::from)
+            .collect(),
             exclude_dirs: vec![
                 ".git".into(),
                 "node_modules".into(),
@@ -52,7 +62,9 @@ impl Default for Config {
                 "dist".into(),
                 "build".into(),
                 ".venv".into(),
+                ".venv-maturin".into(),
                 "coverage".into(),
+                "target".into(),
                 "tests".into(),
                 "__pycache__".into(),
                 ".pytest_cache".into(),

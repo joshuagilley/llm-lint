@@ -16,6 +16,8 @@ use crate::walker::walk_repo;
 pub enum ScanError {
     #[error("unknown rule id(s) in config include list: {0}")]
     UnknownRules(String),
+    #[error("git: {0}")]
+    Git(String),
     #[error("failed to read {path}: {source}")]
     ReadFile {
         path: String,
@@ -88,9 +90,21 @@ fn read_file_context(path: &Path) -> Result<Option<FileContext>, ScanError> {
 }
 
 /// Walk `root`, apply enabled rules, return aggregated result.
-pub fn scan(root: &Path, config: &Config) -> Result<ScanResult, ScanError> {
+///
+/// When `changed_since` is `Some(ref)`, only files that appear in
+/// `git diff ref --name-only --diff-filter=ACMR` under `root` are scanned (same idea as slopsniff `--branch` / `--changed-since`).
+pub fn scan(
+    root: &Path,
+    config: &Config,
+    changed_since: Option<&str>,
+) -> Result<ScanResult, ScanError> {
     let enabled = resolve_enabled_rule_ids(config)?;
-    let files = walk_repo(root, config);
+    let files = if let Some(ref_name) = changed_since {
+        crate::git_scope::scan_paths_from_git_diff(root, config, ref_name)
+            .map_err(ScanError::Git)?
+    } else {
+        walk_repo(root, config)
+    };
 
     let mut contexts = Vec::new();
     for path in files {

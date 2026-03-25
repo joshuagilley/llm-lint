@@ -28,7 +28,7 @@ fn large_file_rule_warns_over_threshold() {
         ..Default::default()
     };
 
-    let result = scan(root, &config).expect("scan");
+    let result = scan(root, &config, None).expect("scan");
     assert_eq!(result.findings.len(), 1);
     assert_eq!(result.findings[0].rule_id, "large-file");
     assert_eq!(result.findings[0].severity, "medium");
@@ -47,7 +47,7 @@ fn unknown_include_rule_errors() {
         ..Default::default()
     };
 
-    let err = scan(root, &config).expect_err("expected unknown rule");
+    let err = scan(root, &config, None).expect_err("expected unknown rule");
     assert!(err.to_string().contains("not-a-rule"), "got {}", err);
 }
 
@@ -69,7 +69,7 @@ fn exclude_severities_drops_high_findings() {
         ..Default::default()
     };
 
-    let result = scan(root, &config).expect("scan");
+    let result = scan(root, &config, None).expect("scan");
     assert!(result
         .findings
         .iter()

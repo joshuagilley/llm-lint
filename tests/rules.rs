@@ -28,7 +28,7 @@ fn large_function_rule_warns_when_body_exceeds_threshold() {
     config.max_function_lines_high = 200;
     config.include_rules = Some(vec!["large-function".into()]);
 
-    let result = scan(root, &config).expect("scan");
+    let result = scan(root, &config, None).expect("scan");
     assert_eq!(result.findings.len(), 1);
     assert_eq!(result.findings[0].rule_id, "large-function");
     assert_eq!(result.findings[0].severity, "medium");
@@ -44,7 +44,7 @@ fn exposed_secrets_detects_sk_proj_style_key() {
     let mut config = py_only_scan_config();
     config.include_rules = Some(vec!["exposed-secrets".into()]);
 
-    let result = scan(root, &config).expect("scan");
+    let result = scan(root, &config, None).expect("scan");
     assert_eq!(result.findings.len(), 1);
     assert_eq!(result.findings[0].rule_id, "exposed-secrets");
     assert_eq!(result.findings[0].severity, "high");
@@ -59,7 +59,7 @@ fn fallback_defaults_detects_os_getenv_sentinel() {
     let mut config = py_only_scan_config();
     config.include_rules = Some(vec!["fallback-defaults".into()]);
 
-    let result = scan(root, &config).expect("scan");
+    let result = scan(root, &config, None).expect("scan");
     assert_eq!(result.findings.len(), 1);
     assert_eq!(result.findings[0].rule_id, "fallback-defaults");
     assert_eq!(result.findings[0].severity, "medium");
@@ -74,7 +74,7 @@ fn helper_sprawl_flags_generic_utils_filename() {
     let mut config = py_only_scan_config();
     config.include_rules = Some(vec!["helper-sprawl".into()]);
 
-    let result = scan(root, &config).expect("scan");
+    let result = scan(root, &config, None).expect("scan");
     let per_file: Vec<_> = result
         .findings
         .iter()
@@ -95,7 +95,7 @@ fn helper_sprawl_cross_file_versioned_function_names() {
     let mut config = py_only_scan_config();
     config.include_rules = Some(vec!["helper-sprawl".into()]);
 
-    let result = scan(root, &config).expect("scan");
+    let result = scan(root, &config, None).expect("scan");
     let cross: Vec<_> = result
         .findings
         .iter()
@@ -116,7 +116,7 @@ fn duplicate_functions_finds_identical_bodies_across_files() {
     let mut config = py_only_scan_config();
     config.include_rules = Some(vec!["duplicate-functions".into()]);
 
-    let result = scan(root, &config).expect("scan");
+    let result = scan(root, &config, None).expect("scan");
     assert_eq!(result.findings.len(), 1);
     assert_eq!(result.findings[0].rule_id, "duplicate-functions");
     assert_eq!(result.findings[0].severity, "high");

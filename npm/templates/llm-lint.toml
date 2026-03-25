@@ -1,25 +1,79 @@
 # Starter llm-lint config (created by llm-lint-cli postinstall if missing).
 # Docs: https://github.com/joshuagilley/llm-lint
+#
+# All supported keys are listed below. Remove or edit what you need; omitted keys use built-in defaults.
 
+# Exit status 1 when total weighted score exceeds this (CI gate).
 fail_threshold = 20
+
+# Line counts: file size (large-file rule).
 max_file_lines_warning = 400
 max_file_lines_high = 800
+
+# Line counts: function body size (large-function rule).
 max_function_lines_warning = 50
 max_function_lines_high = 100
 
+# File extensions to scan (leading dot, lowercase). Default covers Rust, Python, JS/TS, Vue, HTML.
+include_extensions = [
+    ".cjs",
+    ".cts",
+    ".htm",
+    ".html",
+    ".js",
+    ".jsx",
+    ".mjs",
+    ".mts",
+    ".py",
+    ".rs",
+    ".ts",
+    ".tsx",
+    ".vue",
+]
+
+# Subset of extensions where the large-file rule runs (HTML usually omitted).
+large_file_extensions = [
+    ".cjs",
+    ".cts",
+    ".js",
+    ".jsx",
+    ".mjs",
+    ".mts",
+    ".py",
+    ".rs",
+    ".ts",
+    ".tsx",
+    ".vue",
+]
+
+# Basenames or repo-relative POSIX paths to skip entirely.
 exclude_files = []
+
+# Finding severities to drop from output and scoring: "low", "medium", "high".
 exclude_severities = []
 
+# Directory names to prune while walking (any path segment match).
 exclude_dirs = [
     ".git",
     "node_modules",
+    ".nuxt",
     "dist",
     "build",
     ".venv",
+    ".venv-maturin",
     "coverage",
     "target",
+    "tests",
+    "__pycache__",
+    ".pytest_cache",
+    ".mypy_cache",
+    ".ruff_cache",
 ]
 
+# When true, CLI shows per-finding scores (same as `llm-lint scan -v`).
+verbose = false
+
+# Rule ids to run; omit or set to all known rules. Rule ids use kebab-case.
 include = [
     "fallback-defaults",
     "exposed-secrets",

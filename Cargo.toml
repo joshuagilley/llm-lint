@@ -7,6 +7,8 @@ license = "MIT"
 
 [dependencies]
 clap = { version = "4", features = ["derive"] }
+comfy-table = { version = "7", features = ["tty"] }
+crossterm = "0.29"
 regex = "1.12.3"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"

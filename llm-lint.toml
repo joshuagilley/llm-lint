@@ -3,7 +3,6 @@ max_file_lines_warning = 400
 max_file_lines_high = 800
 max_function_lines_warning = 50
 max_function_lines_high = 100
-
 exclude_files = ["temp_slop_examples.py"]
 exclude_severities = []
 
@@ -20,6 +19,7 @@ exclude_dirs = [
     ".pytest_cache",
     ".mypy_cache",
     ".ruff_cache",
+    ".venv-maturin"
 ]
 
 include = [

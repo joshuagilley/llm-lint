@@ -1,6 +1,7 @@
 //! Core scan API for llm-lint.
 
 pub mod config;
+mod git_scope;
 pub mod models;
 pub mod parsers;
 mod pragma;
