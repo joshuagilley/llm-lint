@@ -27,6 +27,8 @@ enum Commands {
         verbose: bool,
         #[arg(long = "max-file-lines", help = "Override file line warning threshold")]
         max_file_lines: Option<i32>,
+        #[arg(long = "max-function-lines", help = "Override function line warning threshold")]
+        max_function_lines: Option<i32>,
     },
 }
 
@@ -144,6 +146,7 @@ fn main() -> std::process::ExitCode {
         format,
         verbose,
         max_file_lines,
+        max_function_lines,
     } = cli.command;
 
     let scan_root = match resolve_scan_root(&path) {
@@ -154,7 +157,13 @@ fn main() -> std::process::ExitCode {
         }
     };
 
-    let config = match merge_config_simple(&scan_root, fail_threshold, verbose, max_file_lines) {
+    let config = match merge_config_simple(
+        &scan_root,
+        fail_threshold,
+        verbose,
+        max_file_lines,
+        max_function_lines,
+    ) {
         Ok(c) => c,
         Err(e) => {
             eprintln!("Error: {e}");

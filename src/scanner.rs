@@ -1,10 +1,14 @@
 use std::collections::HashSet;
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use crate::config::Config;
 use crate::models::{FileContext, ScanResult};
-use crate::rules::{registered_rule_ids, LargeFileRule};
+use crate::parsers::{parse_python, parse_text};
+use crate::rules::{
+    registered_rule_ids, DuplicateFunctionsRule, ExposedSecretsRule, FallbackDefaultsRule,
+    HelperSprawlRule, LargeFileRule, LargeFunctionRule,
+};
 use crate::scoring::compute_score;
 use crate::walker::walk_repo;
 
@@ -42,6 +46,32 @@ fn resolve_enabled_rule_ids(config: &Config) -> Result<HashSet<String>, ScanErro
     Ok(chosen)
 }
 
+fn detect_language(path: &Path) -> String {
+    if path
+        .extension()
+        .and_then(|e| e.to_str())
+        .is_some_and(|e| e.eq_ignore_ascii_case("py"))
+    {
+        "python".into()
+    } else {
+        "text".into()
+    }
+}
+
+fn build_file_context(path: PathBuf, lines: Vec<String>) -> FileContext {
+    let language = detect_language(&path);
+    let functions = match language.as_str() {
+        "python" => parse_python(&path, &lines),
+        _ => parse_text(&path, &lines),
+    };
+    FileContext {
+        path,
+        lines,
+        language,
+        functions,
+    }
+}
+
 fn read_file_context(path: &Path) -> Result<Option<FileContext>, ScanError> {
     let bytes = match fs::read(path) {
         Ok(b) => b,
@@ -54,10 +84,7 @@ fn read_file_context(path: &Path) -> Result<Option<FileContext>, ScanError> {
     };
     let text = String::from_utf8_lossy(&bytes);
     let lines: Vec<String> = text.lines().map(|l| l.to_string()).collect();
-    Ok(Some(FileContext {
-        path: path.to_path_buf(),
-        lines,
-    }))
+    Ok(Some(build_file_context(path.to_path_buf(), lines)))
 }
 
 /// Walk `root`, apply enabled rules, return aggregated result.
@@ -74,11 +101,31 @@ pub fn scan(root: &Path, config: &Config) -> Result<ScanResult, ScanError> {
 
     let mut findings = Vec::new();
     let large_file = LargeFileRule::new(config);
+    let large_fn = LargeFunctionRule::new(config);
 
     for ctx in &contexts {
         if enabled.contains(LargeFileRule::RULE_ID) {
             findings.extend(large_file.run(ctx));
         }
+        if enabled.contains(LargeFunctionRule::RULE_ID) {
+            findings.extend(large_fn.run(ctx));
+        }
+        if enabled.contains(HelperSprawlRule::RULE_ID) {
+            findings.extend(HelperSprawlRule::run(ctx));
+        }
+        if enabled.contains(ExposedSecretsRule::RULE_ID) {
+            findings.extend(ExposedSecretsRule::run(ctx));
+        }
+        if enabled.contains(FallbackDefaultsRule::RULE_ID) {
+            findings.extend(FallbackDefaultsRule::run(ctx));
+        }
+    }
+
+    if enabled.contains(DuplicateFunctionsRule::RULE_ID) {
+        findings.extend(DuplicateFunctionsRule::run_cross_file(&contexts));
+    }
+    if enabled.contains(HelperSprawlRule::RULE_ID) {
+        findings.extend(HelperSprawlRule::run_cross_file(&contexts));
     }
 
     if !config.exclude_severities.is_empty() {

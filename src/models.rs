@@ -20,9 +20,20 @@ pub struct ScanResult {
     pub passed: bool,
 }
 
-/// Per-file content passed to rules (minimal for the first ruleset).
+#[derive(Debug, Clone)]
+pub struct FunctionInfo {
+    pub name: String,
+    pub file_path: String,
+    pub line_start: u32,
+    pub line_end: u32,
+    pub body_hash: String,
+}
+
+/// Per-file content for rules (lines + parsed functions where applicable).
 #[derive(Debug, Clone)]
 pub struct FileContext {
     pub path: PathBuf,
     pub lines: Vec<String>,
+    pub language: String,
+    pub functions: Vec<FunctionInfo>,
 }

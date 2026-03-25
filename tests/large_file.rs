@@ -1,4 +1,6 @@
+use std::collections::HashSet;
 use std::fs;
+
 use llm_lint::config::Config;
 use llm_lint::scanner::scan;
 
@@ -51,4 +53,37 @@ fn unknown_include_rule_errors() {
         "got {}",
         err
     );
+}
+
+#[test]
+fn exclude_severities_drops_high_findings() {
+    let dir = tempfile::tempdir().expect("tempdir");
+    let root = dir.path();
+    let token = format!("ghp_{}", "a".repeat(36));
+    fs::write(
+        root.join("app.py"),
+        format!("api_key = \"{token}\"\ntimeout = os.getenv(\"TIMEOUT\", 0)\n"),
+    )
+    .expect("write");
+
+    let mut config = Config::default();
+    config.exclude_dirs = vec![];
+    config.include_extensions = vec![".py".into()];
+    config.exclude_severities = HashSet::from(["high".to_string()]);
+
+    let result = scan(root, &config).expect("scan");
+    assert!(result
+        .findings
+        .iter()
+        .all(|f| f.severity.to_lowercase() != "high"));
+    assert!(result
+        .findings
+        .iter()
+        .any(|f| f.rule_id == "fallback-defaults"));
+    assert!(!result
+        .findings
+        .iter()
+        .any(|f| f.rule_id == "exposed-secrets"));
+    let expected: i32 = result.findings.iter().map(|f| f.score).sum();
+    assert_eq!(result.total_score, expected);
 }
