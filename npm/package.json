@@ -1,6 +1,6 @@
 {
   "name": "llm-lint-cli",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "npm wrapper for the llm-lint CLI (PyPI binary via uv)",
   "license": "MIT",
   "repository": {
