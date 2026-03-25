@@ -18,13 +18,15 @@ fn large_file_rule_warns_over_threshold() {
     let root = dir.path();
     fs::write(root.join("big.py"), big_py_lines(450)).expect("write");
 
-    let mut config = Config::default();
-    config.exclude_dirs = vec![]; // allow scanning everything under temp dir
-    config.include_extensions = vec![".py".into()];
-    config.large_file_extensions = [".py".into()].into_iter().collect();
-    config.max_file_lines_warning = 400;
-    config.max_file_lines_high = 800;
-    config.fail_threshold = 100;
+    let config = Config {
+        exclude_dirs: vec![], // allow scanning everything under temp dir
+        include_extensions: vec![".py".into()],
+        large_file_extensions: [".py".into()].into_iter().collect(),
+        max_file_lines_warning: 400,
+        max_file_lines_high: 800,
+        fail_threshold: 100,
+        ..Default::default()
+    };
 
     let result = scan(root, &config).expect("scan");
     assert_eq!(result.findings.len(), 1);
@@ -38,10 +40,12 @@ fn unknown_include_rule_errors() {
     let root = dir.path();
     fs::write(root.join("a.py"), "x = 1\n").expect("write");
 
-    let mut config = Config::default();
-    config.exclude_dirs = vec![];
-    config.include_extensions = vec![".py".into()];
-    config.include_rules = Some(vec!["large-file".into(), "not-a-rule".into()]);
+    let config = Config {
+        exclude_dirs: vec![],
+        include_extensions: vec![".py".into()],
+        include_rules: Some(vec!["large-file".into(), "not-a-rule".into()]),
+        ..Default::default()
+    };
 
     let err = scan(root, &config).expect_err("expected unknown rule");
     assert!(err.to_string().contains("not-a-rule"), "got {}", err);
@@ -58,10 +62,12 @@ fn exclude_severities_drops_high_findings() {
     )
     .expect("write");
 
-    let mut config = Config::default();
-    config.exclude_dirs = vec![];
-    config.include_extensions = vec![".py".into()];
-    config.exclude_severities = HashSet::from(["high".to_string()]);
+    let config = Config {
+        exclude_dirs: vec![],
+        include_extensions: vec![".py".into()],
+        exclude_severities: HashSet::from(["high".to_string()]),
+        ..Default::default()
+    };
 
     let result = scan(root, &config).expect("scan");
     assert!(result
