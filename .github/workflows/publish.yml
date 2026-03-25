@@ -1,0 +1,125 @@
+# Builds the commit/tag attached to the GitHub Release. Re-running an old release
+# may fail on PyPI if wheel filenames already exist for that version.
+name: Publish to PyPI and npm
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build-wheels:
+    name: Wheels (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Package version from Cargo.toml
+        run: grep -E '^version\s*=' Cargo.toml
+
+      - uses: PyO3/maturin-action@v1
+        with:
+          command: build
+          args: --release --out dist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-${{ matrix.os }}
+          path: dist
+
+  build-sdist:
+    name: sdist
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: PyO3/maturin-action@v1
+        with:
+          command: sdist
+          args: --out dist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdist
+          path: dist
+
+  publish-pypi:
+    name: Publish to PyPI
+    needs: [build-wheels, build-sdist]
+    runs-on: ubuntu-latest
+
+    environment:
+      name: release
+      url: https://pypi.org/project/llm-lint/
+
+    permissions:
+      id-token: write
+
+    steps:
+      - name: Download wheels
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          pattern: wheels-*
+          merge-multiple: true
+
+      - name: Download sdist
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          pattern: sdist
+          merge-multiple: true
+
+      - name: List dist
+        run: ls -la dist/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          verbose: true
+
+  publish-npm:
+    name: Publish to npm
+    needs: publish-pypi
+    runs-on: ubuntu-latest
+    environment: release
+
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Sync npm package version from Cargo.toml
+        run: |
+          python3 - <<'PY'
+          import json
+          import pathlib
+          import re
+
+          cargo = pathlib.Path("Cargo.toml").read_text(encoding="utf-8")
+          m = re.search(r'^version\s*=\s*"([^"]+)"', cargo, re.MULTILINE)
+          if not m:
+              raise SystemExit("Could not find version in Cargo.toml")
+          version = m.group(1)
+
+          package_path = pathlib.Path("npm/package.json")
+          package = json.loads(package_path.read_text(encoding="utf-8"))
+          package["version"] = version
+          package_path.write_text(json.dumps(package, indent=2) + "\n", encoding="utf-8")
+          print(f"Set npm package version to {version}")
+          PY
+
+      - name: Publish to npm
+        working-directory: npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public

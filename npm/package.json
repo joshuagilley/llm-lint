@@ -1,0 +1,39 @@
+{
+  "name": "llm-lint-cli",
+  "version": "0.1.0",
+  "description": "npm wrapper for the llm-lint CLI (PyPI binary via uv)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joshuagilley/llm-lint.git"
+  },
+  "homepage": "https://github.com/joshuagilley/llm-lint",
+  "bugs": {
+    "url": "https://github.com/joshuagilley/llm-lint/issues"
+  },
+  "type": "commonjs",
+  "bin": {
+    "llm-lint-cli": "bin/llm-lint.js",
+    "llm-lint": "bin/llm-lint.js"
+  },
+  "scripts": {
+    "postinstall": "node scripts/postinstall.js"
+  },
+  "files": [
+    "bin",
+    "README.md",
+    "scripts",
+    "templates"
+  ],
+  "keywords": [
+    "cli",
+    "code-quality",
+    "static-analysis",
+    "ai",
+    "linter",
+    "llm"
+  ],
+  "engines": {
+    "node": ">=18"
+  }
+}

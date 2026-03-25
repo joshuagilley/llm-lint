@@ -1,0 +1,30 @@
+# Starter llm-lint config (created by llm-lint-cli postinstall if missing).
+# Docs: https://github.com/joshuagilley/llm-lint
+
+fail_threshold = 20
+max_file_lines_warning = 400
+max_file_lines_high = 800
+max_function_lines_warning = 50
+max_function_lines_high = 100
+
+exclude_files = []
+exclude_severities = []
+
+exclude_dirs = [
+    ".git",
+    "node_modules",
+    "dist",
+    "build",
+    ".venv",
+    "coverage",
+    "target",
+]
+
+include = [
+    "fallback-defaults",
+    "exposed-secrets",
+    "large-function",
+    "large-file",
+    "duplicate-functions",
+    "helper-sprawl",
+]
